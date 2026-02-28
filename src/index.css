@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes heroFloat {
+  0%   { transform: scale(1.04) translate(0px, 0px); }
+  50%  { transform: scale(1.06) translate(-10px, -8px); }
+  100% { transform: scale(1.04) translate(0px, 0px); }
+}
+.hero-bg {
+  animation: heroFloat 18s ease-in-out infinite;
+}
+
+:root { color-scheme: dark; }
+html, body, #root { height: 100%; }
+
+html {
+  scroll-behavior: smooth;
+}
