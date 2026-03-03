@@ -201,7 +201,7 @@ export default function App() {
           { t: "Computer Vision", c: "bg-sky-400/15 text-sky-200" },
           { t: "Real-Time Systems", c: "bg-pink-400/15 text-pink-200" },
         ],
-        pdf: "/papers/ijarsct-sign-language.pdf",
+        pdf: "papers/ijarsct-sign-language.pdf",
         note: "public/papers/ijarsct-sign-language.pdf",
         icon: FileText,
         accent: "from-emerald-400/25 to-emerald-400/0",
@@ -217,7 +217,7 @@ export default function App() {
           { t: "Data Pipelines", c: "bg-purple-400/15 text-purple-200" },
           { t: "Visualization", c: "bg-pink-400/15 text-pink-200" },
         ],
-        pdf: "/papers/iceri-data-pipelines.pdf",
+        pdf: "papers/iceri-data-pipelines.pdf",
         note: "public/papers/iceri-data-pipelines.pdf",
         icon: Presentation,
         accent: "from-sky-300/25 to-sky-300/0",
@@ -262,7 +262,7 @@ export default function App() {
           whileHover={prefersReducedMotion ? undefined : { y: -1 }}
           transition={{ duration: 0.2 }}
         >
-          Madhur<span className="text-emerald-400">.</span>
+          Madhur Gattani<span className="text-emerald-400">.</span>
         </motion.div>
 
         <nav className="hidden gap-6 text-sm text-white/80 md:flex">
@@ -849,7 +849,7 @@ export default function App() {
                 className="rounded-xl bg-white/10 px-5 py-3 text-sm font-medium transition hover:bg-white/15"
                 href="/resume.pdf"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 whileHover={prefersReducedMotion ? undefined : { y: -2, scale: 1.01 }}
                 whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
               >
