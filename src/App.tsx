@@ -1,7 +1,7 @@
 // src/App.tsx
 import Dashboards from "./pages/Dashboards";
-import { motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
-import { useEffect, useMemo, useRef } from "react";
+import { motion, useReducedMotion, useScroll, useSpring, AnimatePresence } from "framer-motion";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Reveal from "./components/Reveal";
 import {
   BarChart3,
@@ -19,8 +19,35 @@ import {
   Presentation,
 } from "lucide-react";
 
+type Tag = { t: string; c: string };
+
+type Project = {
+  title: string;
+  desc: string;
+  icon: any;
+  accent: string;
+  tags: Tag[];
+  extra: string | null;
+};
+
+type ResearchItem = {
+  title: string;
+  pill: { t: string; c: string };
+  meta: string;
+  mentor: string | null;
+  tags: Tag[];
+  pdf: string | null;
+  note: string | null;
+  icon: any;
+  accent: string;
+  abstract?: string;
+};
+
 export default function App() {
   const prefersReducedMotion = useReducedMotion();
+
+  // ✅ Controls which Research card's abstract is expanded
+  const [openAbstract, setOpenAbstract] = useState<string | null>(null);
 
   // Parallax photo ref
   const bgRef = useRef<HTMLImageElement | null>(null);
@@ -67,13 +94,11 @@ export default function App() {
     []
   );
 
-  // ✅ Projects w/ icons + accent glow
-  const projects = useMemo(
+  const projects: Project[] = useMemo(
     () => [
       {
         title: "Trade Compliance Dashboard",
-        desc:
-          "Built interactive dashboards to monitor compliance KPIs, shipment risks, and delay trends for reporting and visibility.",
+        desc: "Built interactive dashboards to monitor compliance KPIs, shipment risks, and delay trends for reporting and visibility.",
         icon: ShieldCheck,
         accent: "from-emerald-400/25 to-emerald-400/0",
         tags: [
@@ -81,12 +106,11 @@ export default function App() {
           { t: "Dashboards", c: "bg-emerald-400/15 text-emerald-200" },
           { t: "KPI Tracking", c: "bg-purple-400/15 text-purple-200" },
         ],
-        extra: null as string | null,
+        extra: null,
       },
       {
         title: "Sign Language Interpreter (Real-Time)",
-        desc:
-          "Developed a real-time, bidirectional system translating sign language into text and speech to improve accessibility.",
+        desc: "Developed a real-time, bidirectional system translating sign language into text and speech to improve accessibility.",
         icon: Hand,
         accent: "from-sky-300/25 to-sky-300/0",
         tags: [
@@ -99,8 +123,7 @@ export default function App() {
       },
       {
         title: "NBA 2024–2025 Data Scraping & Statistical Analysis",
-        desc:
-          "Built a Python scraper using Requests + BeautifulSoup to extract real-time NBA data and generate 18+ visualizations with Matplotlib/Seaborn for trend analysis and reporting.",
+        desc: "Built a Python scraper using Requests + BeautifulSoup to extract real-time NBA data and generate 18+ visualizations with Matplotlib/Seaborn for trend analysis and reporting.",
         icon: BarChart3,
         accent: "from-purple-400/25 to-purple-400/0",
         tags: [
@@ -109,13 +132,11 @@ export default function App() {
           { t: "EDA", c: "bg-purple-400/15 text-purple-200" },
           { t: "Viz", c: "bg-pink-400/15 text-pink-200" },
         ],
-        extra:
-          "Streamlined processing with custom modules (sub-30s execution) and reduced redundancy by 80%+.",
+        extra: "Streamlined processing with custom modules (sub-30s execution) and reduced redundancy by 80%+.",
       },
       {
         title: "Brain Tumor Classification using CNN",
-        desc:
-          "Built a CNN-based model in TensorFlow/Keras to detect brain tumors from MRI scans using preprocessing and augmentation.",
+        desc: "Built a CNN-based model in TensorFlow/Keras to detect brain tumors from MRI scans using preprocessing and augmentation.",
         icon: Brain,
         accent: "from-pink-400/25 to-pink-400/0",
         tags: [
@@ -124,13 +145,11 @@ export default function App() {
           { t: "TensorFlow", c: "bg-sky-400/15 text-sky-200" },
           { t: "Model Eval", c: "bg-pink-400/15 text-pink-200" },
         ],
-        extra:
-          "Improved performance with dropout, batch norm, transfer learning; evaluated using precision/recall.",
+        extra: "Improved performance with dropout, batch norm, transfer learning; evaluated using precision/recall.",
       },
       {
         title: "Deloitte Australia – Data Analytics Simulation (Forage)",
-        desc:
-          "Analyzed business datasets to identify trends and create actionable reports; built Tableau dashboards and Excel models.",
+        desc: "Analyzed business datasets to identify trends and create actionable reports; built Tableau dashboards and Excel models.",
         icon: GraduationCap,
         accent: "from-emerald-400/25 to-emerald-400/0",
         tags: [
@@ -139,8 +158,7 @@ export default function App() {
           { t: "Excel", c: "bg-purple-400/15 text-purple-200" },
           { t: "Reporting", c: "bg-pink-400/15 text-pink-200" },
         ],
-        extra:
-          "Improved simulated decision-making efficiency by ~30% through clearer KPI reporting.",
+        extra: "Improved simulated decision-making efficiency by ~30% through clearer KPI reporting.",
       },
     ],
     []
@@ -188,7 +206,7 @@ export default function App() {
     []
   );
 
-  const research = useMemo(
+  const research: ResearchItem[] = useMemo(
     () => [
       {
         title: "Sign Language Interpreter For Physically Challenged People",
@@ -205,6 +223,8 @@ export default function App() {
         note: "public/papers/ijarsct-sign-language.pdf",
         icon: FileText,
         accent: "from-emerald-400/25 to-emerald-400/0",
+        abstract:
+          "This study introduces a novel sign language interpreter designed to improve accessibility and communication for those with physical disabilities, particularly those who experience hearing loss. Through the use of cutting-edge artificial intelligence and machine learning algorithms, the technology interprets sign language movements in real-time, removing social, professional, and educational communication barriers. By means of ongoing cooperation among researchers, technology developers, and individuals with physical disabilities, this invention hopes to make a substantial contribution towards the development of a more inclusive society. People of all physical capacities can actively interact, participate, and succeed in such a community. The fundamental ideas of a revolutionary technology that promotes acceptance, equality, and understanding at the formal, academic level are captured in this abstract.",
       },
       {
         title:
@@ -221,20 +241,21 @@ export default function App() {
         note: "public/papers/iceri-data-pipelines.pdf",
         icon: Presentation,
         accent: "from-sky-300/25 to-sky-300/0",
+        abstract:
+          "Contemporary database systems, while effective, suffer severe issues related to complexity and usability, especially among individuals who lack technical expertise but are unfamiliar with query languages like SQL. This paper presents a new database system supported by AI, intended to improve data management using NLP-based interfaces, automatic creation of structured queries, and semi-structured formats such as YAML, JSON, and API documentation. The system strengthens database capabilities through integration of LLMs and advanced machine learning algorithms to automate tasks such as data modeling, schema creation, query comprehension, and performance optimization. It reduces manual tuning, technical dependency, and human error. The AI database employs generative schema inference and format selection to build schema models and execution formats, enabling continuous performance enhancement across relational, NoSQL, NewSQL, graph databases, and vector stores. Reinforcement learning mechanisms are investigated for ongoing improvement and adaptation. The research addresses AI-specific challenges such as query hallucinations, schema drift, and schema evolution, and proposes empirical evaluation and comparative benchmarking against existing technologies. Compared to solutions like MIT GenSQL, this work targets complete database management automation with dynamic schema creation, adaptive optimization across heterogeneous systems, and explicit RL-based self-improvement.",
       },
       {
         title: "More Research (Coming Soon)",
         pill: { t: "Next", c: "bg-purple-400/15 text-purple-200" },
-        meta:
-          "Adding more publications, conference submissions, and technical write-ups soon.",
-        mentor: null as string | null,
+        meta: "Adding more publications, conference submissions, and technical write-ups soon.",
+        mentor: null,
         tags: [
           { t: "AI", c: "border border-white/10 bg-black/20 text-white/80" },
           { t: "Analytics", c: "border border-white/10 bg-black/20 text-white/80" },
           { t: "Research", c: "border border-white/10 bg-black/20 text-white/80" },
         ],
-        pdf: null as string | null,
-        note: null as string | null,
+        pdf: null,
+        note: null,
         icon: Microscope,
         accent: "from-purple-400/25 to-purple-400/0",
       },
@@ -267,7 +288,6 @@ export default function App() {
 
         <nav className="hidden gap-6 text-sm text-white/80 md:flex">
           {navItems.map((n) => (
-            // ✅ FIX: add `group` so underline works
             <motion.a
               key={n.href}
               className="group relative hover:text-white"
@@ -296,16 +316,12 @@ export default function App() {
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <motion.div
             className="absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full bg-emerald-400/15 blur-[90px]"
-            animate={
-              prefersReducedMotion ? undefined : { x: [0, 18, 0], y: [0, 10, 0] }
-            }
+            animate={prefersReducedMotion ? undefined : { x: [0, 18, 0], y: [0, 10, 0] }}
             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div
             className="absolute -right-40 top-10 h-[520px] w-[520px] rounded-full bg-sky-300/15 blur-[90px]"
-            animate={
-              prefersReducedMotion ? undefined : { x: [0, -18, 0], y: [0, -10, 0] }
-            }
+            animate={prefersReducedMotion ? undefined : { x: [0, -18, 0], y: [0, -10, 0] }}
             transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
           />
 
@@ -313,11 +329,32 @@ export default function App() {
             <div className="h-full w-full bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.12)_1px,transparent_0)] [background-size:14px_14px]" />
           </div>
 
+          {/* ✅ Stable GitHub Pages profile image */}
           <div className="absolute inset-0">
             <img
               ref={bgRef}
-              src={`${import.meta.env.BASE_URL}me.jpg`}
-              alt=""
+              src={`${import.meta.env.BASE_URL}me.jpg?v=2`}
+              alt="Madhur Gattani"
+              onError={(e) => {
+                const img = e.currentTarget;
+                const base = import.meta.env.BASE_URL;
+
+                const tries = [
+                  `${base}me.jpg?v=2`,
+                  `${base}me.jpeg?v=2`,
+                  `${base}me.png?v=2`,
+                  `${base}Me.jpg?v=2`,
+                  `${base}Me.JPG?v=2`,
+                ];
+
+                const current = img.getAttribute("data-try") || "0";
+                const idx = Math.min(parseInt(current, 10), tries.length - 1);
+
+                if (img.src.includes(tries[tries.length - 1])) return;
+
+                img.setAttribute("data-try", String(idx + 1));
+                img.src = tries[idx + 1] || tries[tries.length - 1];
+              }}
               className="absolute right-0 top-0 h-full w-full object-cover opacity-[0.95] md:opacity-[1] saturate-[1.15] contrast-[1.12]"
               style={{
                 maskImage:
@@ -343,10 +380,7 @@ export default function App() {
           animate={prefersReducedMotion ? undefined : "show"}
           variants={{
             hidden: { opacity: 0 },
-            show: {
-              opacity: 1,
-              transition: { staggerChildren: 0.08, delayChildren: 0.05 },
-            },
+            show: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
           }}
         >
           <motion.section
@@ -386,8 +420,8 @@ export default function App() {
                 show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
               }}
             >
-              I build dashboards, analytics pipelines, and decision-support systems
-              that reduce manual work and drive faster, consistent outcomes.
+              I build dashboards, analytics pipelines, and decision-support systems that reduce manual work and
+              drive faster, consistent outcomes.
             </motion.p>
 
             <motion.div
@@ -463,12 +497,8 @@ export default function App() {
               transition={{ duration: 0.22 }}
             >
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-white/90">
-                  🧠 Decision Intelligence Preview
-                </h2>
-                <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs text-emerald-200">
-                  Demo
-                </span>
+                <h2 className="text-sm font-semibold text-white/90">🧠 Decision Intelligence Preview</h2>
+                <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs text-emerald-200">Demo</span>
               </div>
 
               <div className="mt-5 space-y-4">
@@ -527,8 +557,7 @@ export default function App() {
             Technical <span className="text-emerald-400">Skills</span>
           </h2>
           <p className="mt-3 max-w-2xl text-white/70">
-            Tools and technologies I actively use to build analytics, machine
-            learning, and decision-support systems.
+            Tools and technologies I actively use to build analytics, machine learning, and decision-support systems.
           </p>
 
           <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -547,18 +576,14 @@ export default function App() {
 
                   <div className="relative flex items-center gap-3">
                     <div className="grid h-11 w-11 place-items-center rounded-2xl border border-white/10 bg-black/25 backdrop-blur">
-                      {/* ✅ icon reacts to whole-card hover */}
                       <Icon className="h-5 w-5 text-white/90 transition-transform duration-200 group-hover:rotate-[-6deg] group-hover:scale-[1.05]" />
                     </div>
                     <h3 className="text-lg font-semibold">{card.title}</h3>
                   </div>
 
                   <div className="relative mt-4 flex flex-wrap gap-2 text-xs">
-                    {card.items.map((s) => (
-                      <span
-                        key={s}
-                        className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-white/80"
-                      >
+                    {card.items.map((s: string) => (
+                      <span key={s} className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-white/80">
                         {s}
                       </span>
                     ))}
@@ -581,8 +606,7 @@ export default function App() {
             Selected <span className="text-emerald-400">Projects</span>
           </h2>
           <p className="mt-3 max-w-2xl text-white/70">
-            Real-world analytics, machine learning, and decision-support work—built
-            with a focus on impact and clarity.
+            Real-world analytics, machine learning, and decision-support work—built with a focus on impact and clarity.
           </p>
 
           <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -616,14 +640,9 @@ export default function App() {
                     ))}
                   </div>
 
-                  {p.extra ? (
-                    <p className="relative mt-3 text-xs text-white/50">{p.extra}</p>
-                  ) : null}
+                  {p.extra ? <p className="relative mt-3 text-xs text-white/50">{p.extra}</p> : null}
 
-                  <a
-                    href="#"
-                    className="relative mt-5 inline-block text-sm text-emerald-300 hover:underline"
-                  >
+                  <a href="#" className="relative mt-5 inline-block text-sm text-emerald-300 hover:underline">
                     View Case Study →
                   </a>
 
@@ -652,13 +671,14 @@ export default function App() {
             Research <span className="text-emerald-400">Papers</span>
           </h2>
           <p className="mt-3 max-w-2xl text-white/70">
-            Published and upcoming research connecting accessibility, data
-            pipelines, and applied analytics.
+            Published and upcoming research connecting accessibility, data pipelines, and applied analytics.
           </p>
 
           <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {research.map((r) => {
               const Icon = r.icon;
+              const isOpen = openAbstract === r.title;
+
               return (
                 <motion.div
                   key={r.title}
@@ -675,13 +695,10 @@ export default function App() {
                       <div className="mt-0.5 grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-white/10 bg-black/25 backdrop-blur">
                         <Icon className="h-5 w-5 text-white/90 transition-transform duration-200 group-hover:rotate-[-6deg] group-hover:scale-[1.05]" />
                       </div>
-
                       <h3 className="text-lg font-semibold leading-snug">{r.title}</h3>
                     </div>
 
-                    <span className={`shrink-0 rounded-full px-3 py-1 text-xs ${r.pill.c}`}>
-                      {r.pill.t}
-                    </span>
+                    <span className={`shrink-0 rounded-full px-3 py-1 text-xs ${r.pill.c}`}>{r.pill.t}</span>
                   </div>
 
                   <p className="relative mt-2 text-sm text-white/70">{r.meta}</p>
@@ -701,12 +718,21 @@ export default function App() {
                   </div>
 
                   <div className="relative mt-5 flex flex-wrap gap-3">
-                    <a
-                      href={r.title.includes("Coming Soon") ? "#contact" : "#"}
-                      className="rounded-xl bg-white/10 px-4 py-2 text-sm transition hover:bg-white/15"
-                    >
-                      {r.title.includes("Coming Soon") ? "Collaborate →" : "Read Abstract →"}
-                    </a>
+                    {r.title.includes("Coming Soon") ? (
+                      <a
+                        href="#contact"
+                        className="rounded-xl bg-white/10 px-4 py-2 text-sm transition hover:bg-white/15"
+                      >
+                        Collaborate →
+                      </a>
+                    ) : (
+                      <button
+                        onClick={() => setOpenAbstract((prev) => (prev === r.title ? null : r.title))}
+                        className="rounded-xl bg-white/10 px-4 py-2 text-sm transition hover:bg-white/15"
+                      >
+                        {isOpen ? "Hide Abstract →" : "Read Abstract →"}
+                      </button>
+                    )}
 
                     {r.pdf ? (
                       <a
@@ -720,11 +746,20 @@ export default function App() {
                     ) : null}
                   </div>
 
-                  {r.note ? (
-                    <p className="relative mt-4 text-xs text-white/50">
-                      To enable PDF: place file at <code>{r.note}</code>
-                    </p>
-                  ) : null}
+                  <AnimatePresence>
+                    {isOpen && r.abstract && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 6 }}
+                        transition={{ duration: 0.25 }}
+                        className="relative mt-4 rounded-2xl border border-white/10 bg-black/20 p-4"
+                      >
+                        <p className="text-xs text-white/60">Abstract</p>
+                        <p className="mt-2 text-sm text-white/80 leading-relaxed">{r.abstract}</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                     <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0" />
@@ -743,27 +778,15 @@ export default function App() {
             AI <span className="text-emerald-400">Lab</span>
           </h2>
           <p className="mt-3 max-w-2xl text-white/70">
-            A space for experiments in decision intelligence, NLP, and model-driven
-            insights. I’ll publish demos and write-ups here as I build.
+            A space for experiments in decision intelligence, NLP, and model-driven insights. I’ll publish demos and
+            write-ups here as I build.
           </p>
 
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             {[
-              {
-                k: "Current Focus",
-                t: "Text-to-Decision Systems",
-                d: "Turning unstructured text into actionable recommendations with guardrails.",
-              },
-              {
-                k: "Next Demo",
-                t: "Risk Signal Extraction",
-                d: "Identify risks in logs/reports and summarize “what to do next”.",
-              },
-              {
-                k: "Coming Soon",
-                t: "Interactive Case Studies",
-                d: "Clickable project breakdowns with metrics, visuals, and lessons learned.",
-              },
+              { k: "Current Focus", t: "Text-to-Decision Systems", d: "Turning unstructured text into actionable recommendations with guardrails." },
+              { k: "Next Demo", t: "Risk Signal Extraction", d: "Identify risks in logs/reports and summarize “what to do next”." },
+              { k: "Coming Soon", t: "Interactive Case Studies", d: "Clickable project breakdowns with metrics, visuals, and lessons learned." },
             ].map((x) => (
               <motion.div
                 key={x.k}
@@ -792,32 +815,14 @@ export default function App() {
               Let’s <span className="text-sky-300">Connect</span>
             </h2>
             <p className="mt-3 max-w-2xl text-white/70">
-              Want to collaborate, discuss analytics roles, or review a dashboard
-              idea? Send a message and I’ll respond quickly.
+              Want to collaborate, discuss analytics roles, or review a dashboard idea? Send a message and I’ll respond quickly.
             </p>
 
             <div className="mt-8 grid gap-6 md:grid-cols-3">
               {[
-                {
-                  k: "Email",
-                  v: "madhurgattani5@gmail.com",
-                  d: "Click to send an email",
-                  href: "mailto:madhurgattani5@gmail.com",
-                },
-                {
-                  k: "LinkedIn",
-                  v: "linkedin.com/in/madhurgattani",
-                  d: "Open profile",
-                  href: "https://www.linkedin.com/in/madhurgattani",
-                  ext: true,
-                },
-                {
-                  k: "GitHub",
-                  v: "github.com/Madhur0203",
-                  d: "View repositories",
-                  href: "https://github.com/Madhur0203",
-                  ext: true,
-                },
+                { k: "Email", v: "madhurgattani5@gmail.com", d: "Click to send an email", href: "mailto:madhurgattani5@gmail.com" },
+                { k: "LinkedIn", v: "linkedin.com/in/madhurgattani", d: "Open profile", href: "https://www.linkedin.com/in/madhurgattani", ext: true },
+                { k: "GitHub", v: "github.com/Madhur0203", d: "View repositories", href: "https://github.com/Madhur0203", ext: true },
               ].map((x) => (
                 <motion.a
                   key={x.k}
@@ -845,9 +850,10 @@ export default function App() {
                 View Projects
               </motion.a>
 
+              {/* ✅ Resume button (GitHub Pages safe) */}
               <motion.a
                 className="rounded-xl bg-white/10 px-5 py-3 text-sm font-medium transition hover:bg-white/15"
-                href="/resume.pdf"
+                href="resume.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={prefersReducedMotion ? undefined : { y: -2, scale: 1.01 }}
@@ -858,8 +864,7 @@ export default function App() {
             </div>
 
             <p className="mt-6 text-xs text-white/50">
-              To enable the resume button: place your resume file at{" "}
-              <code>public/resume.pdf</code>.
+              To enable the resume button: place your resume file at <code>public/resume.pdf</code>.
             </p>
           </motion.div>
         </section>
