@@ -10,12 +10,6 @@ type DashItem = {
 
 const DASHBOARDS: DashItem[] = [
   {
-    title: "Data Science Jobs Analysis",
-    category: "EXPLORATORY DATA ANALYSIS",
-    img: "https://public.tableau.com/static/images/Da/DataScienceJobsAnalysis/Dashboard1/1.png",
-    href: "https://public.tableau.com/views/DataScienceJobsAnalysis/Dashboard1",
-  },
-  {
     title: "Operations KPI Dashboard",
     category: "KPI DASHBOARDS",
     img: "https://public.tableau.com/static/images/Ai/AirlineOperationsControlCenter/Dashboard1/1.png",
