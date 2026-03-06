@@ -1,6 +1,12 @@
 // src/App.tsx
 import Dashboards from "./pages/Dashboards";
-import { motion, useReducedMotion, useScroll, useSpring, AnimatePresence } from "framer-motion";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  AnimatePresence,
+} from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Reveal from "./components/Reveal";
 import {
@@ -17,6 +23,10 @@ import {
   FileText,
   Microscope,
   Presentation,
+  Database,
+  Workflow,
+  FileSpreadsheet,
+  X,
 } from "lucide-react";
 
 type Tag = { t: string; c: string };
@@ -43,14 +53,59 @@ type ResearchItem = {
   abstract?: string;
 };
 
+type AbstractModalState = {
+  title: string;
+  abstract: string;
+  meta?: string;
+  mentor?: string | null;
+  pdf?: string | null;
+};
+
+type CaseStudySection = { h: string; p: string };
+type CaseStudyModalState = {
+  title: string;
+  subtitle?: string;
+  sections: CaseStudySection[];
+  stack?: string[];
+  impact?: string[];
+};
+
 export default function App() {
   const prefersReducedMotion = useReducedMotion();
 
-  // ✅ Controls which Research card's abstract is expanded
-  const [openAbstract, setOpenAbstract] = useState<string | null>(null);
-
   // Parallax photo ref
   const bgRef = useRef<HTMLImageElement | null>(null);
+
+  // ✅ Popup abstract modal state
+  const [abstractModal, setAbstractModal] = useState<AbstractModalState | null>(
+    null
+  );
+
+  // ✅ Popup case study modal state
+  const [caseStudyModal, setCaseStudyModal] =
+    useState<CaseStudyModalState | null>(null);
+
+  // ✅ ESC close + lock page scroll when ANY modal is open
+  useEffect(() => {
+    const hasModalOpen = Boolean(abstractModal || caseStudyModal);
+    if (!hasModalOpen) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setAbstractModal(null);
+        setCaseStudyModal(null);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [abstractModal, caseStudyModal]);
 
   // ✅ smoother parallax (RAF) + respects reduced motion
   useEffect(() => {
@@ -123,7 +178,7 @@ export default function App() {
       },
       {
         title: "NBA 2024–2025 Data Scraping & Statistical Analysis",
-        desc: "Built a Python scraper using Requests + BeautifulSoup to extract real-time NBA data and generate 18+ visualizations with Matplotlib/Seaborn for trend analysis and reporting.",
+        desc: "Built a Python scraper using Requests + BeautifulSoup to extract real-time NBA data and generate 18+ visualizations for trend analysis and reporting.",
         icon: BarChart3,
         accent: "from-purple-400/25 to-purple-400/0",
         tags: [
@@ -132,7 +187,8 @@ export default function App() {
           { t: "EDA", c: "bg-purple-400/15 text-purple-200" },
           { t: "Viz", c: "bg-pink-400/15 text-pink-200" },
         ],
-        extra: "Streamlined processing with custom modules (sub-30s execution) and reduced redundancy by 80%+.",
+        extra:
+          "Streamlined processing with custom modules (sub-30s execution) and reduced redundancy by 80%+.",
       },
       {
         title: "Brain Tumor Classification using CNN",
@@ -145,7 +201,8 @@ export default function App() {
           { t: "TensorFlow", c: "bg-sky-400/15 text-sky-200" },
           { t: "Model Eval", c: "bg-pink-400/15 text-pink-200" },
         ],
-        extra: "Improved performance with dropout, batch norm, transfer learning; evaluated using precision/recall.",
+        extra:
+          "Improved performance with dropout, batch norm, transfer learning; evaluated using precision/recall.",
       },
       {
         title: "Deloitte Australia – Data Analytics Simulation (Forage)",
@@ -158,12 +215,217 @@ export default function App() {
           { t: "Excel", c: "bg-purple-400/15 text-purple-200" },
           { t: "Reporting", c: "bg-pink-400/15 text-pink-200" },
         ],
-        extra: "Improved simulated decision-making efficiency by ~30% through clearer KPI reporting.",
+        extra:
+          "Improved simulated decision-making efficiency by ~30% through clearer KPI reporting.",
       },
     ],
     []
   );
 
+  // ✅ Case studies content (descriptive)
+  const caseStudies = useMemo<Record<string, CaseStudyModalState>>(
+    () => ({
+      "Trade Compliance Dashboard": {
+        title: "Trade Compliance Dashboard",
+        subtitle:
+          "Interactive KPI dashboards for shipment risk visibility, compliance monitoring, and faster reporting.",
+        stack: [
+          "Tableau",
+          "Excel",
+          "ERP Data (Syteline)",
+          "Data Modeling",
+          "KPI Design",
+        ],
+        impact: [
+          "Improved visibility into compliance KPIs and exceptions (single source of truth).",
+          "Reduced manual reporting effort by standardizing metrics and views.",
+          "Enabled faster decision-making through drill-downs by vendor/port/time.",
+        ],
+        sections: [
+          {
+            h: "Problem",
+            p: "Trade compliance teams often lose time consolidating data from multiple sources (ERP, trackers, ISF/entry documentation) and then manually preparing weekly updates. The result is delayed visibility, inconsistent KPI definitions, and slow escalation of high-risk shipments.",
+          },
+          {
+            h: "Goal",
+            p: "Create a dashboard system that clearly answers: What is happening right now? Where are the risks? Which vendors/ports are driving delays? What actions should be taken next?",
+          },
+          {
+            h: "Approach",
+            p: "Designed KPI definitions (delay trends, exception volume, risk signals), built a clean structure for reporting dimensions (vendor, port, shipment stage, date), and implemented interactive dashboards with drill-downs and filters so stakeholders can move from summary to root cause in seconds.",
+          },
+          {
+            h: "What I Built",
+            p: "A set of dashboards including KPI cards, trend lines, exception breakdowns, and risk views that support day-to-day operational decisions—plus a consistent reporting format so weekly updates are fast and repeatable.",
+          },
+          {
+            h: "Outcome",
+            p: "The dashboard became a visibility layer for stakeholders: less time preparing slides and more time acting on issues. It also improves alignment because everyone is reading the same metrics and definitions.",
+          },
+        ],
+      },
+
+      "Sign Language Interpreter (Real-Time)": {
+        title: "Sign Language Interpreter (Real-Time)",
+        subtitle:
+          "Real-time sign-to-text/speech translation system to improve accessibility and communication.",
+        stack: [
+          "Python",
+          "Computer Vision",
+          "ML Classification",
+          "Real-Time Pipeline",
+          "Speech / NLP",
+        ],
+        impact: [
+          "Delivered a real-time translation workflow from gesture → meaning → output.",
+          "Improved accessibility by enabling faster communication without manual interpretation.",
+          "Applied CV + ML for practical, real-world inference constraints (latency + stability).",
+        ],
+        sections: [
+          {
+            h: "Problem",
+            p: "Communication barriers for people using sign language often require a human interpreter, which is not always available. A practical solution needs to be fast, consistent, and usable in real time.",
+          },
+          {
+            h: "Goal",
+            p: "Build a real-time system that captures sign gestures, recognizes them reliably, and produces text and speech output to support day-to-day communication.",
+          },
+          {
+            h: "Approach",
+            p: "Created a real-time pipeline that captures video frames, extracts gesture features, and uses a trained ML model to classify signs. Outputs are stabilized to reduce flicker and then converted into readable text (and speech when needed).",
+          },
+          {
+            h: "What I Built",
+            p: "An end-to-end interpreter prototype: live camera input, inference pipeline, predicted sign output, and an accessibility-friendly output layer designed for responsiveness.",
+          },
+          {
+            h: "Outcome",
+            p: "The system demonstrates how computer vision can be applied for accessibility impact—balancing accuracy with performance constraints required in a live environment.",
+          },
+        ],
+      },
+
+      "NBA 2024–2025 Data Scraping & Statistical Analysis": {
+        title: "NBA 2024–2025 Data Scraping & Statistical Analysis",
+        subtitle:
+          "End-to-end sports analytics pipeline: scrape → clean → analyze → visualize (18+ charts).",
+        stack: [
+          "Python",
+          "Requests",
+          "BeautifulSoup",
+          "Pandas",
+          "NumPy",
+          "Matplotlib",
+          "Seaborn",
+        ],
+        impact: [
+          "Automated repeatable extraction of live tables and metrics from the web.",
+          "Generated 18+ visualizations for trends, comparisons, and distributions.",
+          "Reduced redundancy via modular pipeline design and faster execution.",
+        ],
+        sections: [
+          {
+            h: "Problem",
+            p: "Sports data is spread across multiple web pages and formats. Manually collecting stats is slow, inconsistent, and hard to reproduce for weekly updates or reporting.",
+          },
+          {
+            h: "Goal",
+            p: "Build a reliable pipeline that scrapes NBA data, performs statistical analysis, and produces clear visualizations for insights (player/team trends, distributions, comparisons).",
+          },
+          {
+            h: "Approach",
+            p: "Built a structured scraper using Requests + BeautifulSoup, then standardized tables with Pandas. Designed a clean analysis layer (summary statistics, trend comparisons) and produced a visualization pack for reporting.",
+          },
+          {
+            h: "What I Built",
+            p: "A modular pipeline that pulls multiple datasets, cleans and merges them, calculates key metrics, and outputs charts (histogram, bar, line, pie, etc.) with consistent formatting for storytelling.",
+          },
+          {
+            h: "Outcome",
+            p: "The project demonstrates an end-to-end analytics workflow—repeatable, fast, and report-ready—with a strong focus on transforming raw web data into decision-friendly visuals.",
+          },
+        ],
+      },
+
+      "Brain Tumor Classification using CNN": {
+        title: "Brain Tumor Classification using CNN",
+        subtitle:
+          "Deep learning model to classify brain MRI scans using CNN architecture and robust evaluation.",
+        stack: [
+          "TensorFlow",
+          "Keras",
+          "CNNs",
+          "Image Preprocessing",
+          "Data Augmentation",
+          "Model Evaluation",
+        ],
+        impact: [
+          "Built a complete ML workflow from preprocessing to evaluation.",
+          "Improved generalization using augmentation and regularization.",
+          "Evaluated with precision/recall to handle classification quality properly.",
+        ],
+        sections: [
+          {
+            h: "Problem",
+            p: "MRI classification is challenging because images vary in contrast, noise, orientation, and quality. A successful model must generalize well beyond a small training set and remain stable across real-world variation.",
+          },
+          {
+            h: "Goal",
+            p: "Develop a CNN-based model that can learn meaningful visual patterns from MRI scans and accurately classify tumor presence (or categories depending on dataset).",
+          },
+          {
+            h: "Approach",
+            p: "Applied preprocessing and augmentation to improve model robustness, then trained a CNN in TensorFlow/Keras. Used regularization strategies (dropout, batch normalization, and transfer learning concepts where applicable) to reduce overfitting.",
+          },
+          {
+            h: "What I Built",
+            p: "A deep learning training pipeline with data preparation, model training, validation, and evaluation. The workflow includes metric-driven improvement and careful evaluation using precision/recall to ensure reliability.",
+          },
+          {
+            h: "Outcome",
+            p: "The project shows strong fundamentals in computer vision model building—data handling, architecture selection, performance tuning, and evaluation—aligned with real applied ML practices.",
+          },
+        ],
+      },
+
+      "Deloitte Australia – Data Analytics Simulation (Forage)": {
+        title: "Deloitte Australia – Data Analytics Simulation (Forage)",
+        subtitle:
+          "Business analytics simulation: trend discovery, reporting, and dashboard storytelling.",
+        stack: ["Tableau", "Excel", "Analytics", "Reporting", "Data Storytelling"],
+        impact: [
+          "Converted raw business datasets into insights and executive-ready reporting.",
+          "Built dashboards that communicate trends and KPIs clearly.",
+          "Improved simulated decision-making efficiency via structured KPI reporting.",
+        ],
+        sections: [
+          {
+            h: "Problem",
+            p: "Business teams often have data but lack clarity—trends are hidden in spreadsheets, and decisions slow down when insights aren’t presented clearly to stakeholders.",
+          },
+          {
+            h: "Goal",
+            p: "Identify patterns in business datasets and communicate insights through a clear story: what’s happening, why it matters, and what actions should be taken.",
+          },
+          {
+            h: "Approach",
+            p: "Performed data preparation in Excel, explored trends and outliers, then designed Tableau dashboards that make KPIs easy to interpret with filters and clean layouts.",
+          },
+          {
+            h: "What I Built",
+            p: "An analysis + reporting deliverable: cleaned datasets, insight notes, and a dashboard that supports stakeholder questions with drill-down exploration.",
+          },
+          {
+            h: "Outcome",
+            p: "The simulation demonstrates practical analytics skills—turning raw data into a decision narrative using dashboards and reporting best practices.",
+          },
+        ],
+      },
+    }),
+    []
+  );
+
+  // ✅ UPDATED + EXPANDED (no duplicates; nothing removed)
   const skills = useMemo(
     () => [
       {
@@ -174,13 +436,37 @@ export default function App() {
       },
       {
         title: "Data Analytics",
-        items: ["Pandas", "NumPy", "Matplotlib", "Seaborn", "EDA"],
+        items: [
+          "Pandas",
+          "NumPy",
+          "Matplotlib",
+          "Seaborn",
+          "EDA",
+          "Data Cleaning",
+          "Data Wrangling",
+          "Descriptive Statistics",
+          "Probability",
+          "Hypothesis Testing",
+          "Correlation Analysis",
+          "Regression Analysis",
+          "Outlier Detection",
+          "Feature Engineering",
+        ],
         icon: BarChart3,
         accent: "from-sky-300/25 to-sky-300/0",
       },
       {
         title: "Dashboards & BI",
-        items: ["Tableau", "Power BI", "Excel", "KPI Design"],
+        items: [
+          "Tableau",
+          "Power BI",
+          "Excel",
+          "KPI Design",
+          "Dashboard Design",
+          "Data Storytelling",
+          "Interactive Filters",
+          "Drill-Down Analysis",
+        ],
         icon: LayoutDashboard,
         accent: "from-purple-400/25 to-purple-400/0",
       },
@@ -201,6 +487,52 @@ export default function App() {
         items: ["Git", "GitHub", "VS Code", "Linux"],
         icon: Wrench,
         accent: "from-sky-300/25 to-sky-300/0",
+      },
+      {
+        title: "Database & Data Modeling",
+        items: [
+          "MySQL",
+          "PostgreSQL",
+          "Relational Modeling",
+          "Schema Design",
+          "ERD / EERD",
+          "Normalization (1NF–3NF)",
+          "Constraints & Keys",
+          "Indexing Concepts",
+          "Query Optimization Basics",
+          "DFD Diagrams",
+        ],
+        icon: Database,
+        accent: "from-emerald-400/25 to-emerald-400/0",
+      },
+      {
+        title: "Database Design Tools",
+        items: [
+          "Lucidchart",
+          "Microsoft Visio",
+          "draw.io (diagrams.net)",
+          "MySQL Workbench",
+          "pgAdmin",
+        ],
+        icon: Workflow,
+        accent: "from-sky-300/25 to-sky-300/0",
+      },
+      {
+        title: "Microsoft & Power Platform",
+        items: [
+          "Word",
+          "PowerPoint",
+          "Outlook",
+          "Teams",
+          "OneNote",
+          "SharePoint",
+          "Power Automate",
+          "Power Apps",
+          "Power Query",
+          "Power Pivot",
+        ],
+        icon: FileSpreadsheet,
+        accent: "from-purple-400/25 to-purple-400/0",
       },
     ],
     []
@@ -247,12 +579,19 @@ export default function App() {
       {
         title: "More Research (Coming Soon)",
         pill: { t: "Next", c: "bg-purple-400/15 text-purple-200" },
-        meta: "Adding more publications, conference submissions, and technical write-ups soon.",
+        meta:
+          "Adding more publications, conference submissions, and technical write-ups soon.",
         mentor: null,
         tags: [
           { t: "AI", c: "border border-white/10 bg-black/20 text-white/80" },
-          { t: "Analytics", c: "border border-white/10 bg-black/20 text-white/80" },
-          { t: "Research", c: "border border-white/10 bg-black/20 text-white/80" },
+          {
+            t: "Analytics",
+            c: "border border-white/10 bg-black/20 text-white/80",
+          },
+          {
+            t: "Research",
+            c: "border border-white/10 bg-black/20 text-white/80",
+          },
         ],
         pdf: null,
         note: null,
@@ -316,12 +655,18 @@ export default function App() {
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <motion.div
             className="absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full bg-emerald-400/15 blur-[90px]"
-            animate={prefersReducedMotion ? undefined : { x: [0, 18, 0], y: [0, 10, 0] }}
+            animate={
+              prefersReducedMotion ? undefined : { x: [0, 18, 0], y: [0, 10, 0] }
+            }
             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div
             className="absolute -right-40 top-10 h-[520px] w-[520px] rounded-full bg-sky-300/15 blur-[90px]"
-            animate={prefersReducedMotion ? undefined : { x: [0, -18, 0], y: [0, -10, 0] }}
+            animate={
+              prefersReducedMotion
+                ? undefined
+                : { x: [0, -18, 0], y: [0, -10, 0] }
+            }
             transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
           />
 
@@ -380,7 +725,10 @@ export default function App() {
           animate={prefersReducedMotion ? undefined : "show"}
           variants={{
             hidden: { opacity: 0 },
-            show: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
+            show: {
+              opacity: 1,
+              transition: { staggerChildren: 0.08, delayChildren: 0.05 },
+            },
           }}
         >
           <motion.section
@@ -420,8 +768,8 @@ export default function App() {
                 show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
               }}
             >
-              I build dashboards, analytics pipelines, and decision-support systems that reduce manual work and
-              drive faster, consistent outcomes.
+              I build dashboards, analytics pipelines, and decision-support systems
+              that reduce manual work and drive faster, consistent outcomes.
             </motion.p>
 
             <motion.div
@@ -434,7 +782,9 @@ export default function App() {
               <motion.a
                 href="#projects"
                 className="rounded-xl bg-emerald-400 px-5 py-3 text-sm font-medium text-black transition hover:opacity-90"
-                whileHover={prefersReducedMotion ? undefined : { y: -2, scale: 1.01 }}
+                whileHover={
+                  prefersReducedMotion ? undefined : { y: -2, scale: 1.01 }
+                }
                 whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
               >
                 View Projects
@@ -443,7 +793,9 @@ export default function App() {
               <motion.a
                 href="#dashboards"
                 className="rounded-xl bg-sky-300 px-5 py-3 text-sm font-medium text-black transition hover:opacity-90"
-                whileHover={prefersReducedMotion ? undefined : { y: -2, scale: 1.01 }}
+                whileHover={
+                  prefersReducedMotion ? undefined : { y: -2, scale: 1.01 }
+                }
                 whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
               >
                 Live Dashboards
@@ -452,7 +804,9 @@ export default function App() {
               <motion.a
                 href="#contact"
                 className="rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-medium transition hover:bg-white/10 backdrop-blur-md"
-                whileHover={prefersReducedMotion ? undefined : { y: -2, scale: 1.01 }}
+                whileHover={
+                  prefersReducedMotion ? undefined : { y: -2, scale: 1.01 }
+                }
                 whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
               >
                 Contact
@@ -474,7 +828,9 @@ export default function App() {
                 <motion.div
                   key={x.label}
                   className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur"
-                  whileHover={prefersReducedMotion ? undefined : { y: -4, scale: 1.01 }}
+                  whileHover={
+                    prefersReducedMotion ? undefined : { y: -4, scale: 1.01 }
+                  }
                   transition={{ duration: 0.18 }}
                 >
                   <p className="text-xs text-white/60">{x.label}</p>
@@ -497,8 +853,12 @@ export default function App() {
               transition={{ duration: 0.22 }}
             >
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-white/90">🧠 Decision Intelligence Preview</h2>
-                <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs text-emerald-200">Demo</span>
+                <h2 className="text-sm font-semibold text-white/90">
+                  🧠 Decision Intelligence Preview
+                </h2>
+                <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs text-emerald-200">
+                  Demo
+                </span>
               </div>
 
               <div className="mt-5 space-y-4">
@@ -507,7 +867,9 @@ export default function App() {
                   whileHover={prefersReducedMotion ? undefined : { y: -2 }}
                 >
                   <p className="text-xs text-white/60">Input</p>
-                  <p className="mt-1 text-sm">“Compliance delay increased this week”</p>
+                  <p className="mt-1 text-sm">
+                    “Compliance delay increased this week”
+                  </p>
                 </motion.div>
 
                 <motion.div
@@ -583,7 +945,10 @@ export default function App() {
 
                   <div className="relative mt-4 flex flex-wrap gap-2 text-xs">
                     {card.items.map((s: string) => (
-                      <span key={s} className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-white/80">
+                      <span
+                        key={s}
+                        className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-white/80"
+                      >
                         {s}
                       </span>
                     ))}
@@ -603,7 +968,7 @@ export default function App() {
       <Reveal>
         <section id="projects" className="mx-auto max-w-6xl px-6 py-20">
           <h2 className="text-3xl font-semibold">
-            Selected <span className="text-emerald-400">Projects</span>
+            Projects<span className="text-emerald-400">Created</span>
           </h2>
           <p className="mt-3 max-w-2xl text-white/70">
             Real-world analytics, machine learning, and decision-support work—built with a focus on impact and clarity.
@@ -612,6 +977,8 @@ export default function App() {
           <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {projects.map((p) => {
               const Icon = p.icon;
+              const cs = caseStudies[p.title];
+
               return (
                 <motion.div
                   key={p.title}
@@ -640,11 +1007,20 @@ export default function App() {
                     ))}
                   </div>
 
-                  {p.extra ? <p className="relative mt-3 text-xs text-white/50">{p.extra}</p> : null}
+                  {p.extra ? (
+                    <p className="relative mt-3 text-xs text-white/50">{p.extra}</p>
+                  ) : null}
 
-                  <a href="#" className="relative mt-5 inline-block text-sm text-emerald-300 hover:underline">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!cs) return;
+                      setCaseStudyModal(cs);
+                    }}
+                    className="relative mt-5 inline-block text-sm text-emerald-300 hover:underline"
+                  >
                     View Case Study →
-                  </a>
+                  </button>
 
                   <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                     <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0" />
@@ -677,7 +1053,6 @@ export default function App() {
           <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {research.map((r) => {
               const Icon = r.icon;
-              const isOpen = openAbstract === r.title;
 
               return (
                 <motion.div
@@ -698,7 +1073,9 @@ export default function App() {
                       <h3 className="text-lg font-semibold leading-snug">{r.title}</h3>
                     </div>
 
-                    <span className={`shrink-0 rounded-full px-3 py-1 text-xs ${r.pill.c}`}>{r.pill.t}</span>
+                    <span className={`shrink-0 rounded-full px-3 py-1 text-xs ${r.pill.c}`}>
+                      {r.pill.t}
+                    </span>
                   </div>
 
                   <p className="relative mt-2 text-sm text-white/70">{r.meta}</p>
@@ -727,10 +1104,19 @@ export default function App() {
                       </a>
                     ) : (
                       <button
-                        onClick={() => setOpenAbstract((prev) => (prev === r.title ? null : r.title))}
+                        onClick={() => {
+                          if (!r.abstract) return;
+                          setAbstractModal({
+                            title: r.title,
+                            abstract: r.abstract,
+                            meta: r.meta,
+                            mentor: r.mentor,
+                            pdf: r.pdf,
+                          });
+                        }}
                         className="rounded-xl bg-white/10 px-4 py-2 text-sm transition hover:bg-white/15"
                       >
-                        {isOpen ? "Hide Abstract →" : "Read Abstract →"}
+                        Read Abstract →
                       </button>
                     )}
 
@@ -746,20 +1132,11 @@ export default function App() {
                     ) : null}
                   </div>
 
-                  <AnimatePresence>
-                    {isOpen && r.abstract && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 6 }}
-                        transition={{ duration: 0.25 }}
-                        className="relative mt-4 rounded-2xl border border-white/10 bg-black/20 p-4"
-                      >
-                        <p className="text-xs text-white/60">Abstract</p>
-                        <p className="mt-2 text-sm text-white/80 leading-relaxed">{r.abstract}</p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  {r.note ? (
+                    <p className="relative mt-4 text-xs text-white/50">
+                      To enable PDF: place file at <code>{r.note}</code>
+                    </p>
+                  ) : null}
 
                   <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                     <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0" />
@@ -784,9 +1161,21 @@ export default function App() {
 
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             {[
-              { k: "Current Focus", t: "Text-to-Decision Systems", d: "Turning unstructured text into actionable recommendations with guardrails." },
-              { k: "Next Demo", t: "Risk Signal Extraction", d: "Identify risks in logs/reports and summarize “what to do next”." },
-              { k: "Coming Soon", t: "Interactive Case Studies", d: "Clickable project breakdowns with metrics, visuals, and lessons learned." },
+              {
+                k: "Current Focus",
+                t: "Text-to-Decision Systems",
+                d: "Turning unstructured text into actionable recommendations with guardrails.",
+              },
+              {
+                k: "Next Demo",
+                t: "Risk Signal Extraction",
+                d: "Identify risks in logs/reports and summarize “what to do next”.",
+              },
+              {
+                k: "Coming Soon",
+                t: "Interactive Case Studies",
+                d: "Clickable project breakdowns with metrics, visuals, and lessons learned.",
+              },
             ].map((x) => (
               <motion.div
                 key={x.k}
@@ -820,9 +1209,26 @@ export default function App() {
 
             <div className="mt-8 grid gap-6 md:grid-cols-3">
               {[
-                { k: "Email", v: "madhurgattani5@gmail.com", d: "Click to send an email", href: "mailto:madhurgattani5@gmail.com" },
-                { k: "LinkedIn", v: "linkedin.com/in/madhurgattani", d: "Open profile", href: "https://www.linkedin.com/in/madhurgattani", ext: true },
-                { k: "GitHub", v: "github.com/Madhur0203", d: "View repositories", href: "https://github.com/Madhur0203", ext: true },
+                {
+                  k: "Email",
+                  v: "madhurgattani5@gmail.com",
+                  d: "Click to send an email",
+                  href: "mailto:madhurgattani5@gmail.com",
+                },
+                {
+                  k: "LinkedIn",
+                  v: "linkedin.com/in/madhurgattani",
+                  d: "Open profile",
+                  href: "https://www.linkedin.com/in/madhurgattani",
+                  ext: true,
+                },
+                {
+                  k: "GitHub",
+                  v: "github.com/Madhur0203",
+                  d: "View repositories",
+                  href: "https://github.com/Madhur0203",
+                  ext: true,
+                },
               ].map((x) => (
                 <motion.a
                   key={x.k}
@@ -853,7 +1259,7 @@ export default function App() {
               {/* ✅ Resume button (GitHub Pages safe) */}
               <motion.a
                 className="rounded-xl bg-white/10 px-5 py-3 text-sm font-medium transition hover:bg-white/15"
-                href="resume.pdf"
+                href={`${import.meta.env.BASE_URL}resume.pdf`}
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={prefersReducedMotion ? undefined : { y: -2, scale: 1.01 }}
@@ -864,11 +1270,203 @@ export default function App() {
             </div>
 
             <p className="mt-6 text-xs text-white/50">
-              To enable the resume button: place your resume file at <code>public/resume.pdf</code>.
             </p>
           </motion.div>
         </section>
       </Reveal>
+
+      {/* ================= ABSTRACT POPUP MODAL (✅ removed bottom Close button) ================= */}
+      <AnimatePresence>
+        {abstractModal && (
+          <motion.div
+            className="fixed inset-0 z-[100] flex items-center justify-center px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setAbstractModal(null)}
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            />
+
+            <motion.div
+              className="relative w-full max-w-3xl overflow-hidden rounded-3xl border border-white/10 bg-slate-950/90 shadow-2xl"
+              initial={
+                prefersReducedMotion ? undefined : { opacity: 0, y: 18, scale: 0.98 }
+              }
+              animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
+              exit={
+                prefersReducedMotion ? undefined : { opacity: 0, y: 18, scale: 0.98 }
+              }
+              transition={{ duration: 0.22, ease: "easeOut" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* header */}
+              <div className="flex items-start justify-between gap-3 border-b border-white/10 bg-black/20 p-5">
+                <div>
+                  <h3 className="text-lg font-semibold leading-snug">
+                    {abstractModal.title}
+                  </h3>
+                  {abstractModal.meta ? (
+                    <p className="mt-1 text-sm text-white/60">{abstractModal.meta}</p>
+                  ) : null}
+                  {abstractModal.mentor ? (
+                    <p className="mt-1 text-sm text-white/60">
+                      Mentor:{" "}
+                      <span className="text-white/80">{abstractModal.mentor}</span>
+                    </p>
+                  ) : null}
+                </div>
+
+                <button
+                  onClick={() => setAbstractModal(null)}
+                  className="rounded-xl border border-white/10 bg-white/5 p-2 text-white/80 hover:bg-white/10"
+                  aria-label="Close"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* body */}
+              <div className="max-h-[70vh] overflow-y-auto p-5">
+                <p className="text-xs text-white/60">Abstract</p>
+                <p className="mt-2 text-sm leading-relaxed text-white/85">
+                  {abstractModal.abstract}
+                </p>
+
+                {/* actions (no Close button now) */}
+                <div className="mt-5 flex items-center gap-3">
+                  {abstractModal.pdf ? (
+                    <a
+                      href={abstractModal.pdf}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="rounded-xl bg-white/10 px-4 py-2 text-sm hover:bg-white/15"
+                    >
+                      Open PDF →
+                    </a>
+                  ) : null}
+
+                  <p className="ml-auto text-xs text-white/40">
+                    Tip: press <span className="text-white/60">ESC</span> to close
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ================= CASE STUDY POPUP MODAL (same style as abstract) ================= */}
+      <AnimatePresence>
+        {caseStudyModal && (
+          <motion.div
+            className="fixed inset-0 z-[110] flex items-center justify-center px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setCaseStudyModal(null)}
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            />
+
+            <motion.div
+              className="relative w-full max-w-4xl overflow-hidden rounded-3xl border border-white/10 bg-slate-950/90 shadow-2xl"
+              initial={
+                prefersReducedMotion ? undefined : { opacity: 0, y: 18, scale: 0.98 }
+              }
+              animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
+              exit={
+                prefersReducedMotion ? undefined : { opacity: 0, y: 18, scale: 0.98 }
+              }
+              transition={{ duration: 0.22, ease: "easeOut" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* header */}
+              <div className="flex items-start justify-between gap-3 border-b border-white/10 bg-black/20 p-5">
+                <div>
+                  <h3 className="text-lg font-semibold leading-snug">
+                    {caseStudyModal.title}
+                  </h3>
+                  {caseStudyModal.subtitle ? (
+                    <p className="mt-1 text-sm text-white/60">{caseStudyModal.subtitle}</p>
+                  ) : null}
+                </div>
+
+                <button
+                  onClick={() => setCaseStudyModal(null)}
+                  className="rounded-xl border border-white/10 bg-white/5 p-2 text-white/80 hover:bg-white/10"
+                  aria-label="Close"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* body */}
+              <div className="max-h-[72vh] overflow-y-auto p-5">
+                {/* quick chips */}
+                {caseStudyModal.stack?.length ? (
+                  <div className="mb-4">
+                    <p className="text-xs text-white/60">Tech Stack</p>
+                    <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                      {caseStudyModal.stack.map((s) => (
+                        <span
+                          key={s}
+                          className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-white/80"
+                        >
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+
+                {/* sections */}
+                <div className="space-y-4">
+                  {caseStudyModal.sections.map((sec) => (
+                    <div
+                      key={sec.h}
+                      className="rounded-2xl border border-white/10 bg-black/20 p-4"
+                    >
+                      <p className="text-sm font-semibold text-white/90">
+                        {sec.h}
+                      </p>
+                      <p className="mt-2 text-sm leading-relaxed text-white/80">
+                        {sec.p}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* impact */}
+                {caseStudyModal.impact?.length ? (
+                  <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
+                    <p className="text-sm font-semibold text-white/90">Impact</p>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-white/80">
+                      {caseStudyModal.impact.map((x) => (
+                        <li key={x}>{x}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+
+                <div className="mt-5 flex items-center">
+                  <p className="ml-auto text-xs text-white/40">
+                    Tip: press <span className="text-white/60">ESC</span> to close
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Footer */}
       <footer className="mx-auto max-w-6xl px-6 pb-10 text-sm text-white/50">
