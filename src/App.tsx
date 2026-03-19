@@ -27,6 +27,9 @@ import {
   Workflow,
   FileSpreadsheet,
   X,
+  ExternalLink,
+  Github,
+  Bot,
 } from "lucide-react";
 
 type Tag = { t: string; c: string };
@@ -38,6 +41,8 @@ type Project = {
   accent: string;
   tags: Tag[];
   extra: string | null;
+  github?: string;
+  live?: string;
 };
 
 type ResearchItem = {
@@ -70,22 +75,29 @@ type CaseStudyModalState = {
   impact?: string[];
 };
 
+type AiLabItem = {
+  eyebrow: string;
+  title: string;
+  desc: string;
+  tags: string[];
+  accent: string;
+  icon: any;
+  github?: string;
+  live?: string;
+};
+
 export default function App() {
   const prefersReducedMotion = useReducedMotion();
 
-  // Parallax photo ref
   const bgRef = useRef<HTMLImageElement | null>(null);
 
-  // ✅ Popup abstract modal state
   const [abstractModal, setAbstractModal] = useState<AbstractModalState | null>(
     null
   );
 
-  // ✅ Popup case study modal state
   const [caseStudyModal, setCaseStudyModal] =
     useState<CaseStudyModalState | null>(null);
 
-  // ✅ ESC close + lock page scroll when ANY modal is open
   useEffect(() => {
     const hasModalOpen = Boolean(abstractModal || caseStudyModal);
     if (!hasModalOpen) return;
@@ -107,7 +119,6 @@ export default function App() {
     };
   }, [abstractModal, caseStudyModal]);
 
-  // ✅ smoother parallax (RAF) + respects reduced motion
   useEffect(() => {
     if (prefersReducedMotion) return;
 
@@ -133,7 +144,6 @@ export default function App() {
     };
   }, [prefersReducedMotion]);
 
-  // Scroll progress bar (subtle, top)
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 180, damping: 30 });
 
@@ -189,6 +199,8 @@ export default function App() {
         ],
         extra:
           "Streamlined processing with custom modules (sub-30s execution) and reduced redundancy by 80%+.",
+        live: "https://sports-data-dashboard.streamlit.app/",
+        github: "https://github.com/Madhur0203/sports-analytics-dashboard",
       },
       {
         title: "Brain Tumor Classification using CNN",
@@ -222,7 +234,49 @@ export default function App() {
     []
   );
 
-  // ✅ Case studies content (descriptive)
+  const aiLabItems: AiLabItem[] = useMemo(
+    () => [
+      {
+        eyebrow: "Featured Project",
+        title: "Insight Forage AI",
+        desc: "An AI-powered analytics intelligence project designed to explore data, detect anomalies, surface hidden patterns, and turn raw business data into meaningful insights through interactive analysis and smart model-driven workflows.",
+        tags: ["AI Analytics", "Anomaly Detection", "Decision Support"],
+        accent:
+          "border-emerald-400/20 bg-gradient-to-br from-emerald-500/10 via-white/5 to-transparent",
+        icon: Bot,
+        github: "https://github.com/Madhur0203/insightforge-ai",
+      },
+      {
+        eyebrow: "Live AI Project",
+        title: "Customer Intelligence AI",
+        desc: "A customer analytics application built to analyze customer behavior, uncover high-value segments, and generate business-ready intelligence through predictive and interactive analysis.",
+        tags: ["Customer Analytics", "Segmentation", "AI Insights"],
+        accent:
+          "border-sky-300/20 bg-gradient-to-br from-sky-400/10 via-white/5 to-transparent",
+        icon: Brain,
+        live: "https://customer-intelligence-ai-mg.streamlit.app/",
+        github: "https://github.com/Madhur0203/Customer-Intelligence-AI",
+      },
+      {
+        eyebrow: "Current Focus",
+        title: "Text-to-Decision Systems",
+        desc: "Turning unstructured text into actionable recommendations with intelligent interpretation, structured outputs, and business guardrails.",
+        tags: ["NLP", "Decision Support", "Structured Output"],
+        accent: "border-white/10 bg-white/5",
+        icon: Cpu,
+      },
+      {
+        eyebrow: "Next Demo",
+        title: "Risk Signal Extraction",
+        desc: "Identifying critical operational risks from reports, logs, and messy input data, then summarizing what matters and what action should come next.",
+        tags: ["Risk Analytics", "Signal Detection", "Summarization"],
+        accent: "border-white/10 bg-white/5",
+        icon: ShieldCheck,
+      },
+    ],
+    []
+  );
+
   const caseStudies = useMemo<Record<string, CaseStudyModalState>>(
     () => ({
       "Trade Compliance Dashboard": {
@@ -425,7 +479,6 @@ export default function App() {
     []
   );
 
-  // ✅ UPDATED + EXPANDED (no duplicates; nothing removed)
   const skills = useMemo(
     () => [
       {
@@ -604,13 +657,11 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-slate-900 text-white">
-      {/* top progress bar */}
       <motion.div
         className="fixed left-0 top-0 z-[60] h-[2px] w-full origin-left bg-gradient-to-r from-emerald-400 via-sky-300 to-purple-400"
         style={{ scaleX: progress }}
       />
 
-      {/* Navbar */}
       <motion.header
         className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5"
         initial={prefersReducedMotion ? false : { opacity: 0, y: -10 }}
@@ -650,7 +701,6 @@ export default function App() {
         </motion.a>
       </motion.header>
 
-      {/* Hero */}
       <section className="relative">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <motion.div
@@ -674,7 +724,6 @@ export default function App() {
             <div className="h-full w-full bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.12)_1px,transparent_0)] [background-size:14px_14px]" />
           </div>
 
-          {/* ✅ Stable GitHub Pages profile image */}
           <div className="absolute inset-0">
             <img
               ref={bgRef}
@@ -912,7 +961,6 @@ export default function App() {
         </div>
       </section>
 
-      {/* Skills Section */}
       <Reveal>
         <section id="skills" className="mx-auto max-w-6xl px-6 py-20">
           <h2 className="text-3xl font-semibold">
@@ -964,7 +1012,6 @@ export default function App() {
         </section>
       </Reveal>
 
-      {/* Projects Section */}
       <Reveal>
         <section id="projects" className="mx-auto max-w-6xl px-6 py-20">
           <h2 className="text-3xl font-semibold">
@@ -1011,16 +1058,42 @@ export default function App() {
                     <p className="relative mt-3 text-xs text-white/50">{p.extra}</p>
                   ) : null}
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!cs) return;
-                      setCaseStudyModal(cs);
-                    }}
-                    className="relative mt-5 inline-block text-sm text-emerald-300 hover:underline"
-                  >
-                    View Case Study →
-                  </button>
+                  <div className="relative mt-5 flex flex-wrap gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!cs) return;
+                        setCaseStudyModal(cs);
+                      }}
+                      className="text-sm text-emerald-300 hover:underline"
+                    >
+                      View Case Study →
+                    </button>
+
+                    {p.live ? (
+                      <a
+                        href={p.live}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-sm transition hover:bg-white/15"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                        Live Demo
+                      </a>
+                    ) : null}
+
+                    {p.github ? (
+                      <a
+                        href={p.github}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-black/20 px-4 py-2 text-sm transition hover:bg-white/10"
+                      >
+                        <Github className="h-4 w-4" />
+                        GitHub
+                      </a>
+                    ) : null}
+                  </div>
 
                   <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                     <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0" />
@@ -1032,7 +1105,6 @@ export default function App() {
         </section>
       </Reveal>
 
-      {/* Dashboards */}
       <Reveal>
         <div className="mx-auto max-w-6xl px-6">
           <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
@@ -1040,7 +1112,6 @@ export default function App() {
         <Dashboards />
       </Reveal>
 
-      {/* Research Papers Section */}
       <Reveal>
         <section id="research" className="mx-auto max-w-6xl px-6 py-20">
           <h2 className="text-3xl font-semibold">
@@ -1148,76 +1219,91 @@ export default function App() {
         </section>
       </Reveal>
 
-      {/* AI Lab Section */}
       <Reveal>
-              {/* AI Lab Section */}
-      <section id="ai" className="mx-auto max-w-6xl px-6 py-20">
-        <h2 className="text-3xl font-semibold">
-          AI <span className="text-emerald-400">Lab</span>
-        </h2>
-        <p className="mt-3 max-w-2xl text-white/70">
-          A space for experiments in decision intelligence, NLP, anomaly detection,
-          and model-driven insights. This section highlights the ideas, prototypes,
-          and AI systems I am actively building and refining.
-        </p>
+        <section id="ai" className="mx-auto max-w-6xl px-6 py-20">
+          <h2 className="text-3xl font-semibold">
+            AI <span className="text-emerald-400">Lab</span>
+          </h2>
+          <p className="mt-3 max-w-2xl text-white/70">
+            A space for experiments in decision intelligence, NLP, anomaly detection,
+            and model-driven insights. This section highlights the ideas, prototypes,
+            and AI systems I am actively building and refining.
+          </p>
 
-        <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/10 via-white/5 to-transparent p-6 shadow-[0_0_40px_rgba(16,185,129,0.08)]">
-            <p className="text-xs uppercase tracking-[0.2em] text-emerald-300/80">
-              Featured Project
-            </p>
-            <p className="mt-2 text-lg font-semibold text-white">
-              Insight Forage AI
-            </p>
-            <p className="mt-3 text-sm leading-6 text-white/70">
-              An AI-powered analytics intelligence project designed to explore data,
-              detect anomalies, surface hidden patterns, and turn raw business data
-              into meaningful insights through interactive analysis and smart model-driven workflows.
-            </p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-white/70">
-                AI Analytics
-              </span>
-              <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-white/70">
-                Anomaly Detection
-              </span>
-              <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-white/70">
-                Decision Support
-              </span>
-            </div>
-          </div>
+          <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            {aiLabItems.map((item) => {
+              const Icon = item.icon;
 
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-            <p className="text-xs text-white/60">Current Focus</p>
-            <p className="mt-2 text-lg font-semibold">Text-to-Decision Systems</p>
-            <p className="mt-2 text-sm text-white/70 leading-6">
-              Turning unstructured text into actionable recommendations with
-              intelligent interpretation, structured outputs, and business guardrails.
-            </p>
-          </div>
+              return (
+                <motion.div
+                  key={item.title}
+                  className={`rounded-2xl border p-6 ${item.accent}`}
+                  whileHover={prefersReducedMotion ? undefined : { y: -8 }}
+                  transition={{ duration: 0.22 }}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.2em] text-white/60">
+                        {item.eyebrow}
+                      </p>
+                      <p className="mt-2 text-lg font-semibold text-white">
+                        {item.title}
+                      </p>
+                    </div>
+                    <div className="grid h-10 w-10 place-items-center rounded-2xl border border-white/10 bg-black/20">
+                      <Icon className="h-5 w-5 text-white/85" />
+                    </div>
+                  </div>
 
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-            <p className="text-xs text-white/60">Next Demo</p>
-            <p className="mt-2 text-lg font-semibold">Risk Signal Extraction</p>
-            <p className="mt-2 text-sm text-white/70 leading-6">
-              Identifying critical operational risks from reports, logs, and messy
-              input data, then summarizing what matters and what action should come next.
-            </p>
-          </div>
+                  <p className="mt-3 text-sm leading-6 text-white/70">
+                    {item.desc}
+                  </p>
 
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-            <p className="text-xs text-white/60">Coming Soon</p>
-            <p className="mt-2 text-lg font-semibold">Interactive Case Studies</p>
-            <p className="mt-2 text-sm text-white/70 leading-6">
-              Clickable project breakdowns with methodology, metrics, visuals, and
-              lessons learned from real analytics and AI implementations.
-            </p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {item.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-white/70"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  {(item.live || item.github) && (
+                    <div className="mt-5 flex flex-wrap gap-3">
+                      {item.live ? (
+                        <a
+                          href={item.live}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-sm transition hover:bg-white/15"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          Live Demo
+                        </a>
+                      ) : null}
+
+                      {item.github ? (
+                        <a
+                          href={item.github}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-black/20 px-4 py-2 text-sm transition hover:bg-white/10"
+                        >
+                          <Github className="h-4 w-4" />
+                          GitHub
+                        </a>
+                      ) : null}
+                    </div>
+                  )}
+                </motion.div>
+              );
+            })}
           </div>
-        </div>
-      </section>
+        </section>
       </Reveal>
 
-      {/* Contact Section */}
       <Reveal>
         <section id="contact" className="mx-auto max-w-6xl px-6 py-20">
           <motion.div
@@ -1281,7 +1367,6 @@ export default function App() {
                 View Projects
               </motion.a>
 
-              {/* ✅ Resume button (GitHub Pages safe) */}
               <motion.a
                 className="rounded-xl bg-white/10 px-5 py-3 text-sm font-medium transition hover:bg-white/15"
                 href={`${import.meta.env.BASE_URL}resume.pdf`}
@@ -1294,13 +1379,11 @@ export default function App() {
               </motion.a>
             </div>
 
-            <p className="mt-6 text-xs text-white/50">
-            </p>
+            <p className="mt-6 text-xs text-white/50"></p>
           </motion.div>
         </section>
       </Reveal>
 
-      {/* ================= ABSTRACT POPUP MODAL (✅ removed bottom Close button) ================= */}
       <AnimatePresence>
         {abstractModal && (
           <motion.div
@@ -1329,7 +1412,6 @@ export default function App() {
               transition={{ duration: 0.22, ease: "easeOut" }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* header */}
               <div className="flex items-start justify-between gap-3 border-b border-white/10 bg-black/20 p-5">
                 <div>
                   <h3 className="text-lg font-semibold leading-snug">
@@ -1355,14 +1437,12 @@ export default function App() {
                 </button>
               </div>
 
-              {/* body */}
               <div className="max-h-[70vh] overflow-y-auto p-5">
                 <p className="text-xs text-white/60">Abstract</p>
                 <p className="mt-2 text-sm leading-relaxed text-white/85">
                   {abstractModal.abstract}
                 </p>
 
-                {/* actions (no Close button now) */}
                 <div className="mt-5 flex items-center gap-3">
                   {abstractModal.pdf ? (
                     <a
@@ -1385,7 +1465,6 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* ================= CASE STUDY POPUP MODAL (same style as abstract) ================= */}
       <AnimatePresence>
         {caseStudyModal && (
           <motion.div
@@ -1414,7 +1493,6 @@ export default function App() {
               transition={{ duration: 0.22, ease: "easeOut" }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* header */}
               <div className="flex items-start justify-between gap-3 border-b border-white/10 bg-black/20 p-5">
                 <div>
                   <h3 className="text-lg font-semibold leading-snug">
@@ -1434,9 +1512,7 @@ export default function App() {
                 </button>
               </div>
 
-              {/* body */}
               <div className="max-h-[72vh] overflow-y-auto p-5">
-                {/* quick chips */}
                 {caseStudyModal.stack?.length ? (
                   <div className="mb-4">
                     <p className="text-xs text-white/60">Tech Stack</p>
@@ -1453,7 +1529,6 @@ export default function App() {
                   </div>
                 ) : null}
 
-                {/* sections */}
                 <div className="space-y-4">
                   {caseStudyModal.sections.map((sec) => (
                     <div
@@ -1470,7 +1545,6 @@ export default function App() {
                   ))}
                 </div>
 
-                {/* impact */}
                 {caseStudyModal.impact?.length ? (
                   <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
                     <p className="text-sm font-semibold text-white/90">Impact</p>
@@ -1493,7 +1567,6 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Footer */}
       <footer className="mx-auto max-w-6xl px-6 pb-10 text-sm text-white/50">
         <div className="flex flex-col items-start justify-between gap-2 md:flex-row md:items-center">
           <p>© {new Date().getFullYear()} Madhur. Built with React + Tailwind.</p>
