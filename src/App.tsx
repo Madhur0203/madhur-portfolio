@@ -1150,46 +1150,71 @@ export default function App() {
 
       {/* AI Lab Section */}
       <Reveal>
-        <section id="ai" className="mx-auto max-w-6xl px-6 py-20">
-          <h2 className="text-3xl font-semibold">
-            AI <span className="text-emerald-400">Lab</span>
-          </h2>
-          <p className="mt-3 max-w-2xl text-white/70">
-            A space for experiments in decision intelligence, NLP, and model-driven insights. I’ll publish demos and
-            write-ups here as I build.
-          </p>
+              {/* AI Lab Section */}
+      <section id="ai" className="mx-auto max-w-6xl px-6 py-20">
+        <h2 className="text-3xl font-semibold">
+          AI <span className="text-emerald-400">Lab</span>
+        </h2>
+        <p className="mt-3 max-w-2xl text-white/70">
+          A space for experiments in decision intelligence, NLP, anomaly detection,
+          and model-driven insights. This section highlights the ideas, prototypes,
+          and AI systems I am actively building and refining.
+        </p>
 
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {[
-              {
-                k: "Current Focus",
-                t: "Text-to-Decision Systems",
-                d: "Turning unstructured text into actionable recommendations with guardrails.",
-              },
-              {
-                k: "Next Demo",
-                t: "Risk Signal Extraction",
-                d: "Identify risks in logs/reports and summarize “what to do next”.",
-              },
-              {
-                k: "Coming Soon",
-                t: "Interactive Case Studies",
-                d: "Clickable project breakdowns with metrics, visuals, and lessons learned.",
-              },
-            ].map((x) => (
-              <motion.div
-                key={x.k}
-                className="rounded-2xl border border-white/10 bg-white/5 p-6"
-                whileHover={prefersReducedMotion ? undefined : { y: -8 }}
-                transition={{ duration: 0.22 }}
-              >
-                <p className="text-xs text-white/60">{x.k}</p>
-                <p className="mt-2 text-lg font-semibold">{x.t}</p>
-                <p className="mt-2 text-sm text-white/70">{x.d}</p>
-              </motion.div>
-            ))}
+        <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/10 via-white/5 to-transparent p-6 shadow-[0_0_40px_rgba(16,185,129,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-emerald-300/80">
+              Featured Project
+            </p>
+            <p className="mt-2 text-lg font-semibold text-white">
+              Insight Forage AI
+            </p>
+            <p className="mt-3 text-sm leading-6 text-white/70">
+              An AI-powered analytics intelligence project designed to explore data,
+              detect anomalies, surface hidden patterns, and turn raw business data
+              into meaningful insights through interactive analysis and smart model-driven workflows.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-white/70">
+                AI Analytics
+              </span>
+              <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-white/70">
+                Anomaly Detection
+              </span>
+              <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-white/70">
+                Decision Support
+              </span>
+            </div>
           </div>
-        </section>
+
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+            <p className="text-xs text-white/60">Current Focus</p>
+            <p className="mt-2 text-lg font-semibold">Text-to-Decision Systems</p>
+            <p className="mt-2 text-sm text-white/70 leading-6">
+              Turning unstructured text into actionable recommendations with
+              intelligent interpretation, structured outputs, and business guardrails.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+            <p className="text-xs text-white/60">Next Demo</p>
+            <p className="mt-2 text-lg font-semibold">Risk Signal Extraction</p>
+            <p className="mt-2 text-sm text-white/70 leading-6">
+              Identifying critical operational risks from reports, logs, and messy
+              input data, then summarizing what matters and what action should come next.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+            <p className="text-xs text-white/60">Coming Soon</p>
+            <p className="mt-2 text-lg font-semibold">Interactive Case Studies</p>
+            <p className="mt-2 text-sm text-white/70 leading-6">
+              Clickable project breakdowns with methodology, metrics, visuals, and
+              lessons learned from real analytics and AI implementations.
+            </p>
+          </div>
+        </div>
+      </section>
       </Reveal>
 
       {/* Contact Section */}
